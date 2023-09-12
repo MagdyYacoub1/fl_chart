@@ -159,7 +159,7 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
         final widthHalf = barRod.width / 2;
         final borderRadius =
             barRod.borderRadius ?? BorderRadius.circular(barRod.width / 2);
-        final borderSide = barRod.borderSide;
+        final border = barRod.border;
 
         final x = groupBarsPosition[i].barsX[j];
 
@@ -278,11 +278,118 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
           canvasWrapper.drawRRect(barRRect, _barPaint);
 
           // draw border stroke
-          if (borderSide.width > 0 && borderSide.color.opacity > 0) {
+          // In case of uniform borders
+          if (border.isUniform &&
+              border.top.width > 0 &&
+              border.top.color.opacity > 0) {
             _barStrokePaint
-              ..color = borderSide.color
-              ..strokeWidth = borderSide.width;
+              ..color = border.top.color
+              ..strokeWidth = border.top.width;
             canvasWrapper.drawRRect(barRRect, _barStrokePaint);
+          }
+
+          // In case of non-uniform borders
+          if (!border.isUniform) {
+            final path = Path();
+            // top border
+            switch (border.top.style) {
+              case BorderStyle.solid:
+                _barStrokePaint.color = border.top.color;
+                path.reset();
+                path.moveTo(barRRect.left, barRRect.top);
+                path.lineTo(barRRect.right, barRRect.top);
+                if (border.top.width == 0.0) {
+                  _barStrokePaint.style = PaintingStyle.stroke;
+                } else {
+                  _barStrokePaint.style = PaintingStyle.fill;
+                  path
+                    ..lineTo(
+                      barRRect.right - border.right.width,
+                      barRRect.top + border.top.width,
+                    )
+                    ..lineTo(
+                      barRRect.left + border.left.width,
+                      barRRect.top + border.top.width,
+                    );
+                }
+                canvasWrapper.drawPath(path, _barStrokePaint);
+              case BorderStyle.none:
+                break;
+            } // left border
+            switch (border.left.style) {
+              case BorderStyle.solid:
+                _barStrokePaint.color = border.left.color;
+                path.reset();
+                path.moveTo(barRRect.left, barRRect.bottom);
+                path.lineTo(barRRect.left, barRRect.top);
+                if (border.left.width == 0.0) {
+                  _barStrokePaint.style = PaintingStyle.stroke;
+                } else {
+                  _barStrokePaint.style = PaintingStyle.fill;
+                  path
+                    ..lineTo(
+                      barRRect.left + border.left.width,
+                      barRRect.top + border.top.width,
+                    )
+                    ..lineTo(
+                      barRRect.left + border.left.width,
+                      barRRect.bottom - border.bottom.width,
+                    );
+                }
+                canvasWrapper.drawPath(path, _barStrokePaint);
+              case BorderStyle.none:
+                break;
+            }
+            // right border
+            switch (border.right.style) {
+              case BorderStyle.solid:
+                _barStrokePaint.color = border.right.color;
+                path.reset();
+                path.moveTo(barRRect.right, barRRect.top);
+                path.lineTo(barRRect.right, barRRect.bottom);
+                if (border.right.width == 0.0) {
+                  _barStrokePaint.style = PaintingStyle.stroke;
+                } else {
+                  _barStrokePaint.style = PaintingStyle.fill;
+                  path
+                    ..lineTo(
+                      barRRect.right - border.right.width,
+                      barRRect.bottom - border.bottom.width,
+                    )
+                    ..lineTo(
+                      barRRect.right - border.right.width,
+                      barRRect.top + border.top.width,
+                    );
+                }
+                canvasWrapper.drawPath(path, _barStrokePaint);
+              case BorderStyle.none:
+                break;
+            }
+            // bottom border
+            switch (border.bottom.style) {
+              case BorderStyle.solid:
+                _barStrokePaint.color = border.bottom.color;
+                path.reset();
+                path.moveTo(barRRect.right, barRRect.bottom);
+                path.lineTo(barRRect.left, barRRect.bottom);
+                if (border.bottom.width == 0.0) {
+                  _barStrokePaint.style = PaintingStyle.stroke;
+                } else {
+                  _barStrokePaint.style = PaintingStyle.fill;
+                  path
+                    ..lineTo(
+                      barRRect.left + border.left.width,
+                      barRRect.bottom - border.bottom.width,
+                    )
+                    ..lineTo(
+                      barRRect.right - border.right.width,
+                      barRRect.bottom - border.bottom.width,
+                    );
+                }
+                canvasWrapper.drawPath(path, _barStrokePaint);
+              case BorderStyle.none:
+                break;
+            }
           }
 
           // draw rod stack

@@ -103,6 +103,24 @@ class Utils {
     );
   }
 
+  /// Default value for Border where border value is not exists (uniform border)
+  static const Border defaultBorder =
+      Border.fromBorderSide(BorderSide(width: 0));
+
+  /// Decreases [borderSide] to <= width / 2
+  Border normalizeBorder(Border? border, double width) {
+    if (border == null) {
+      return defaultBorder;
+    }
+
+    return Border(
+      top: normalizeBorderSide(border.top, width),
+      bottom: normalizeBorderSide(border.bottom, width),
+      left: normalizeBorderSide(border.left, width),
+      right: normalizeBorderSide(border.right, width),
+    );
+  }
+
   /// Default value for BorderSide where borderSide value is not exists
   static const BorderSide defaultBorderSide = BorderSide(width: 0);
 
